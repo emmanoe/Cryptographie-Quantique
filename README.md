@@ -13,3 +13,7 @@ Dans ce dossier vous trouverez un fichier main.py qui permet de lancer un serveu
 	$ ./main.py :: (pour se connecter au serveur local)
 
 3 - Il vous sera demandé si vous voulez jouer en réseau, répondre O (oui) ou N (non) à l'aide des touches de votre clavier.
+
+### Fonctionnalités
+- Création de QBit
+- Transmission de QBit
