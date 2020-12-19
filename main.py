@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from qubit import createDialog
+from qubit import *
 import  random
 import time
 import socket
@@ -9,6 +9,12 @@ import sys
 
 U0 = 0 #Client 0
 U1 = 1 #Client 1
+
+#Fonction de reception d'une table de jeu 
+def receiveQBit(client):
+    boats = []
+    x = int(client.recv(1)) + 1
+    print("coucou QBit x")
 
 def main_client(x):
     choix = (input ("Voulez vous vous connecter au serveur de transmission de QBit <N>on <O>ui ?"))
@@ -38,20 +44,21 @@ def main_client(x):
     print("Votre id client est %d" % int(User_Number))
 
     #Ouverture du dialog de création d'un QBit 
-    if int(User_Number) == U0:
-        x_char = input ("quelle colonne ? ")
-        x_char.capitalize()
-        x = ord(x_char)-ord("A")  + 1
-        y = int(input ("quelle ligne ? "))  
-        client.send(str(x-1).encode('utf-8'))
-        client.send(str(y-1).encode('utf-8'))
+    if (int(User_Number) == 0):
+        QBit = createQBit()
+        client.sendall(str(QBit).encode('utf-8'))
+        print("QBit transmitted to user 1")
+    else :
+        b = b''
+        print("QBit d'amplitude entrant: ")
+        for i in range(10):
+            b = b + client.recv(1)
+        print(b)
+        print("QBit transmit par user 0: ")
+        #Convertissage des bytes en int
+        print(b)
+        
 
-
-    #Ouverture du dialog de récéption d'un QBit 
-    if int(User_Number) == U1:
-        print("Atente de reception ...")
-        x = client.recv(1) 
-        y = client.recv(1) 
             
 def main():
 
@@ -110,7 +117,14 @@ def main():
             #Pour commencer on defini le client du serveur à 0 
             currentUser = 0
             
-
+            if (currentUser == U0):
+                x = b''
+                for i in range(8):
+                    x = x + clients_connectes[0].recv(1)
+                clients_connectes[1].sendall(str(x).encode('utf-8'))
+            
+            print("QBit sent to user 1 !")
+            break
     #Fin de la transmission et fermeture des connexions
     for client in clients_connectes:
         client.close()
