@@ -42,21 +42,37 @@ def main_client(x):
 
     
     print("Votre id client est %d" % int(User_Number))
-
+    
     #Ouverture du dialog de création d'un QBit 
     if (int(User_Number) == 0):
-        QBit = createQBit()
-        client.sendall(str(QBit).encode('utf-8'))
-        print("QBit transmitted to user 1")
+        print("Voulez vous: ")
+        choixApp = (input ("<1> - Transmettre un QBit | <2> - Transmettre une série de QBit ? "))
+        
+        if (choixApp == "1"):
+            alpha,beta = createQBit()
+            totalsent = 0
+            client.send(alpha.to_bytes(8,sys.byteorder))
+            print("QBit transmitted to user 1")
+
+        if (choixApp == "2"):
+            pass
     else :
-        b = b''
+        alpha = b''
+        bytes_recd = 0
+
         print("QBit d'amplitude entrant: ")
-        for i in range(10):
-            b = b + client.recv(1)
-        print(b)
+        for i in range(8):
+            alpha = alpha + client.recv(1)
+
         print("QBit transmit par user 0: ")
+
         #Convertissage des bytes en int
-        print(b)
+        print("Mesure de l'état reçu dans la base |0>, |1>:")
+        a = alpha[2]
+        b = 100 - a
+        qbit = 0/100. * zero_qubit + 100/100. * one_qubit
+        print(measure_in_01_basis(qbit)) 
+
         
 
             
@@ -98,7 +114,7 @@ def main():
 
             print("Chargement ...")    
             print("Attente d'éventuel observateurs")
-            timeout = 8
+            timeout = 1
             connexions_demandees, wlist, xlist = select.select([server],[], [],timeout)
             for connexion in connexions_demandees:
                 connexion_avec_client, infos_connexion = connexion.accept()
@@ -123,7 +139,7 @@ def main():
                     x = x + clients_connectes[0].recv(1)
                 clients_connectes[1].sendall(str(x).encode('utf-8'))
             
-            print("QBit sent to user 1 !")
+            print("QBit sent from user 0 to user 1 !")
             break
     #Fin de la transmission et fermeture des connexions
     for client in clients_connectes:
