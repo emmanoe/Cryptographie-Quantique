@@ -26,9 +26,12 @@ def createQubit(percentage_zero, percentage_one):
     return sqrt(percentage_zero/100.)*zero_qubit+sqrt(percentage_one/100.)*one_qubit
 
 def createQBit():
-    print ("Veuillez entrer les amplitudes en pourcent (ex alpha: 50, beta: 50 ) : ")
-    alpha = int(input ("Pourcentage du bit 0: "))
-    beta = int(input ("Pourcentage du bit 1: "))
+    print("==============Base par défaut : |O>, |1>==================")
+    print ("Veuillez entrer les amplitudes en pourcent")
+    print ("pour chaque état de base tel que :")
+    print("QBit = alpha |0> + beta |1>,  (ex alpha: 50, beta: 50 ) : ")
+    alpha = int(input ("alpha: "))
+    beta = int(input ("beta: "))
     res = createQubit(alpha,beta)
     print("Creation du QBit [[racine-carree(alpha)|0>][racine-carree(beta)|1>]] : ")
     print(res)

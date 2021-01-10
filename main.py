@@ -46,7 +46,7 @@ def main_client(x):
     #Ouverture du dialog de création d'un QBit 
     if (int(User_Number) == 0):
         print("Voulez vous: ")
-        print("<1> - Transmettre un QBit ? ")
+        print("<1> - Créer et transmettre un QBit ? ")
         choixApp = (input ("<2> - Transmettre une série de QBits (random) ? "))
         
         if (choixApp == "1"):
@@ -57,27 +57,36 @@ def main_client(x):
 
         if (choixApp == "2"):
             state = ''
-            size = int((input("Taille de la série :")))
+            key_length = (input("Veuillez saisir la longueur de la clé: "))
             print("- Base |0>, |1> -")
-            for _ in range(size):
+            for _ in range(int(key_length)):
                 state += str(random.randint(0,1))
             payload = state.encode()
             client.send(payload)
-            print("Bits envoyés: "+state)
-            pass
+            print("Bits envoyés: ")
+            print(payload)
+            #Dertemination du pourcentage de similiarité des bits échangés:
+            print("Dertemination du pourcentage de similiarité des bits échangés:")
+            check_byte_list = b''
+            while True:
+                c = client.recv(1)
+                if c == b'':
+                    break
+                check_byte_list+=c
+            print(check_byte_list)    
 
     else :
         print("Bit entrant: ")
         byte_list = b''
         while True:
             c = client.recv(1)
-            print(c)
             if c == b'':
                 break
             byte_list+=c
         alpha = int(byte_list)
-        
-        print("QBit transmit par user 0: ")
+        key_to_string=str(int(byte_list)) 
+        print("Bits recus: "+key_to_string)
+        print("Interprétation du QBit transmit par user 0: ")
 
         #Convertissage des bytes en int
         try:
@@ -86,9 +95,15 @@ def main_client(x):
             qbit = sqrt(alpha/100.) * zero_qubit + sqrt(beta/100.) * one_qubit
             print(measure_in_01_basis(qbit)) 
         except ValueError:
+            #print(a)
+            for i in range(len(key_to_string)):
+                print(measure_in_01_basis(eval(QBit(int(key_to_string[i])).name)))
+            #Apres avoir mesurer les qubits, on les enregistre puis on les renvoie à l'interlocuteur 
+            print("Envoie de la mesure à l'interlocuteur...[done]")
+            payload = key_to_string.encode()
+            client.send(payload)
 
-            print(measure_in_01_basis(create_quantum_state(str(alpha))))
-        
+
 
             
 def main():
@@ -150,8 +165,8 @@ def main():
             
             if (currentUser == U0):
                 x = b''
-                for i in range(8):
-                    x = x + clients_connectes[0].recv(1)
+                #Le tunnel achemine les bits génrés aléatoire par l'user id 0 vers son interlocuteur
+                x = x + clients_connectes[0].recv(1024)
                 clients_connectes[1].sendall(x)
             
             print("QBit sent from user 0 to user 1 !")
