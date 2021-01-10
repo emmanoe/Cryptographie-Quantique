@@ -2,6 +2,13 @@ import numpy as np
 from math import sqrt, log
 from random import random 
 import itertools
+from functools import reduce
+from enum import Enum
+
+class QBit(Enum):
+    zero_qubit = 0
+    one_qubit = 1  
+
 
 #Functions fortement inspiré de "Mastering Quantum Computing with IBM QX: Explore the world of quantum"
 
@@ -37,4 +44,7 @@ def measure_in_01_basis(state):
         for state_desc in itertools.product([0,1], repeat=n_qubits)]): 
             if rand < sum(probabilities[0:(idx+1)]):
                 return '|"%s">' % state_desc 
-   
+
+def create_quantum_state(bits):
+    param = [eval(QBit(int(bits[0])).name),eval(QBit(int(bits[1])).name),eval(QBit(int(bits[2])).name), eval(QBit(int(bits[3])).name), eval(QBit(int(bits[4])).name), eval(QBit(int(bits[5])).name), eval(QBit(int(bits[6])).name), eval(QBit(int(bits[7])).name)]
+    return reduce(lambda x,y:np.kron(x,y),param)

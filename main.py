@@ -10,7 +10,7 @@ import sys
 U0 = 0 #Client 0
 U1 = 1 #Client 1
 
-#Fonction de reception d'une table de jeu 
+#Fonction de reception d'un QBit 
 def receiveQBit(client):
     boats = []
     x = int(client.recv(1)) + 1
@@ -46,7 +46,8 @@ def main_client(x):
     #Ouverture du dialog de création d'un QBit 
     if (int(User_Number) == 0):
         print("Voulez vous: ")
-        choixApp = (input ("<1> - Transmettre une série de QBit ? "))
+        print("<1> - Transmettre un QBit ? ")
+        choixApp = (input ("<2> - Transmettre une série de QBits (random) ? "))
         
         if (choixApp == "1"):
             alpha,beta = createQBit()
@@ -55,14 +56,23 @@ def main_client(x):
             print("QBit transmitted to user 1")
 
         if (choixApp == "2"):
+            state = ''
+            size = int((input("Taille de la série :")))
+            print("- Base |0>, |1> -")
+            for _ in range(size):
+                state += str(random.randint(0,1))
+            payload = state.encode()
+            client.send(payload)
+            print("Bits envoyés: "+state)
             pass
 
     else :
-        print("QBit d'amplitude entrant: ")
+        print("Bit entrant: ")
         byte_list = b''
         while True:
             c = client.recv(1)
-            if c == b' ':
+            print(c)
+            if c == b'':
                 break
             byte_list+=c
         alpha = int(byte_list)
@@ -70,11 +80,14 @@ def main_client(x):
         print("QBit transmit par user 0: ")
 
         #Convertissage des bytes en int
-        print("Mesure de l'état reçu dans la base |0>, |1>:")
-        beta = 100 - alpha
-        qbit = sqrt(alpha/100.) * zero_qubit + sqrt(beta/100.) * one_qubit
-        print(measure_in_01_basis(qbit)) 
+        try:
+            print("Mesure de l'état reçu dans la base |0>, |1>:")
+            beta = 100 - alpha
+            qbit = sqrt(alpha/100.) * zero_qubit + sqrt(beta/100.) * one_qubit
+            print(measure_in_01_basis(qbit)) 
+        except ValueError:
 
+            print(measure_in_01_basis(create_quantum_state(str(alpha))))
         
 
             
