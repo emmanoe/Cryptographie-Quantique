@@ -17,17 +17,17 @@ def receiveQBit(client):
     print("coucou QBit x")
 
 def main_client(x):
-    choix = (input ("Voulez vous vous connecter au serveur de transmission de QBit <N>on <O>ui ?"))
-    if (choix == 'N'):
+    choix = (input ("Voulez vous vous connecter au tunnel de transmission de QBit <N>on <O>ui ?"))
+    if (choix.upper()[0] != 'O'):
     	return
     #Création de la socket TCP/IP
     client = socket.socket(family = socket.AF_INET6, type = socket.SOCK_STREAM, proto = 0, fileno = None)
 
     #On connecte la nouvelle socket client au port où le server "écoute"
-    server_address = (x,7777)
-    print("Connection au server distant sur le port 7777")
-    client.connect(server_address)
-    print("Vous êtes connecté au serveur de transmission")
+    server = (x,7777)
+    print("Connection au tunnel distant sur le port 7777")
+    client.connect(server)
+    print("Vous êtes connecté au tunnel de transmission")
     print("Attente de client ...")
 
     User_Number = client.recv(1)
@@ -46,31 +46,33 @@ def main_client(x):
     #Ouverture du dialog de création d'un QBit 
     if (int(User_Number) == 0):
         print("Voulez vous: ")
-        choixApp = (input ("<1> - Transmettre un QBit | <2> - Transmettre une série de QBit ? "))
+        choixApp = (input ("<1> - Transmettre une série de QBit ? "))
         
         if (choixApp == "1"):
             alpha,beta = createQBit()
-            totalsent = 0
-            client.send(alpha.to_bytes(8,sys.byteorder))
+            payload = str(alpha).encode()+b' '
+            client.send(payload)
             print("QBit transmitted to user 1")
 
         if (choixApp == "2"):
             pass
+
     else :
-        alpha = b''
-        bytes_recd = 0
-
         print("QBit d'amplitude entrant: ")
-        for i in range(8):
-            alpha = alpha + client.recv(1)
-
+        byte_list = b''
+        while True:
+            c = client.recv(1)
+            if c == b' ':
+                break
+            byte_list+=c
+        alpha = int(byte_list)
+        
         print("QBit transmit par user 0: ")
 
         #Convertissage des bytes en int
         print("Mesure de l'état reçu dans la base |0>, |1>:")
-        a = alpha[2]
-        b = 100 - a
-        qbit = 0/100. * zero_qubit + 100/100. * one_qubit
+        beta = 100 - alpha
+        qbit = sqrt(alpha/100.) * zero_qubit + sqrt(beta/100.) * one_qubit
         print(measure_in_01_basis(qbit)) 
 
         
@@ -86,7 +88,7 @@ def main():
     server = socket.socket(family = socket.AF_INET6, type = socket.SOCK_STREAM, proto = 0, fileno = None)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     #Bind la socket au port 7777
-    print("Lancement du serveur de transmission de QBit sur le port 7777")
+    print("Lancement du tunnel de transmission de QBit sur le port 7777")
     server.bind(('::',7777))
     # "Ecoute" pour les demandes de connections entrantes
     server.listen(5)
@@ -137,7 +139,7 @@ def main():
                 x = b''
                 for i in range(8):
                     x = x + clients_connectes[0].recv(1)
-                clients_connectes[1].sendall(str(x).encode('utf-8'))
+                clients_connectes[1].sendall(x)
             
             print("QBit sent from user 0 to user 1 !")
             break

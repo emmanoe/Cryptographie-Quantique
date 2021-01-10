@@ -23,7 +23,7 @@ def createQBit():
     alpha = int(input ("Pourcentage du bit 0: "))
     beta = int(input ("Pourcentage du bit 1: "))
     res = createQubit(alpha,beta)
-    print("Creation du QBit : ")
+    print("Creation du QBit [[racine-carree(alpha)|0>][racine-carree(beta)|1>]] : ")
     print(res)
     return alpha, beta
 
@@ -31,6 +31,8 @@ def measure_in_01_basis(state):
     n_qubits=int(log(state.shape[0],2))
     probabilities = [(coeff*coeff.conjugate()).real for coeff in state.flat]
     rand=random()
+    """ print("Going with rand : ",rand)
+    print("Going with probabilities : ",probabilities) """
     for idx,state_desc in enumerate([''.join(map(str,state_desc))
         for state_desc in itertools.product([0,1], repeat=n_qubits)]): 
             if rand < sum(probabilities[0:(idx+1)]):
